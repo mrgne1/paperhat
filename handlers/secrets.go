@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"www.github.com/mrgne1/paperhat/encryption"
 	"database/sql"
 
 	"github.com/google/uuid"
@@ -29,7 +30,7 @@ type Secret struct {
 	ExpiresAt time.Time
 }
 
-func (c *ApiConfig) CreateSecretHandler() http.Handler {
+func (c *ApiConfig) CreateSecretHandler(keyLength int) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -38,9 +39,23 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			return
 		}
 
+		id, err := uuid.NewRandom()
+		if err != nil {
+			log.Printf("CreateSecretHandler Error: %v\n", err)
+			secretHandlerError(w, "Error creating the secret")
+			return
+		}
+
+		cipherText, keyText, err := encryption.Encrypt(string(body))
+		if err != nil {
+			log.Printf("CreateSecretHandler Error: %v\n", err)
+			secretHandlerError(w, "Error Encrypting secret")
+			return
+		}
+
 		secret := Secret{
-			Id:        uuid.New(),
-			Value:     string(body),
+			Id:        id,
+			Value:     cipherText,
 			CreatedAt: time.Now().UTC(),
 			ExpiresAt: time.Now().UTC().Add(30 * time.Second),
 		}
@@ -52,9 +67,9 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			return
 		}
 
-		resp := CreateSecretResponse {
-			DirectLink: fmt.Sprintf("%v/api/secrets/%v", c.hostUrl, secret.Id),
-			HtmlPageLink: fmt.Sprintf("%v/v1/secrets/%v", c.hostUrl, secret.Id),
+		resp := CreateSecretResponse{
+			DirectLink:   fmt.Sprintf("%v/api/secrets/%v/%v", c.hostUrl, secret.Id, keyText),
+			HtmlPageLink: fmt.Sprintf("%v/v1/secrets/%v/%v", c.hostUrl, secret.Id, keyText),
 		}
 
 		respBody, _ := json.Marshal(resp)
@@ -66,18 +81,21 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 
 func (c *ApiConfig) ReadSecretHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		keyText := r.PathValue("keyText")
 		id, err := uuid.Parse(r.PathValue("id"))
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
 			secretHandlerError(w, "Error parsing the secret id")
 			return
 		}
+
 		secret, err := readSecret(c.secrets, id)
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
 			secretHandlerError(w, "Error Reading secret from DB")
 			return
 		}
+
 		err = deleteSecret(c.secrets, id)
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
@@ -85,9 +103,16 @@ func (c *ApiConfig) ReadSecretHandler() http.Handler {
 			return
 		}
 
+		value, err := encryption.Decrypt(secret.Value, keyText)
+		if err != nil {
+			log.Printf("ReadSecretHandler Error: %v\n", err)
+			secretHandlerError(w, "Error decrypting secret")
+			return
+		}
+
 		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(200)
-		w.Write([]byte(secret.Value))
+		w.Write([]byte(value))
 	})
 }
 

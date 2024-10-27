@@ -30,8 +30,8 @@ func main() {
 
 	go cronJob(&cfg, time.Minute)
 
-	mux.Handle("POST /api/secrets", cfg.CreateSecretHandler())
-	mux.Handle("GET /api/secrets/{id}", cfg.ReadSecretHandler())
+	mux.Handle("POST /api/secrets", cfg.CreateSecretHandler(512))
+	mux.Handle("GET /api/secrets/{id}/{keyText}", cfg.ReadSecretHandler())
 	mux.HandleFunc("GET /api/heartbeat", handlers.Heartbeat)
 	
 	fmt.Printf("Serving on %v\n", port)
