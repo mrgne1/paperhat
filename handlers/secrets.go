@@ -30,7 +30,7 @@ type Secret struct {
 	ExpiresAt time.Time
 }
 
-func (c *ApiConfig) CreateSecretHandler(keyLength int) http.Handler {
+func (c *ApiConfig) CreateSecretHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {

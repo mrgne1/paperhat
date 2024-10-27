@@ -30,7 +30,12 @@ func main() {
 
 	go cronJob(&cfg, time.Minute)
 
-	mux.Handle("POST /api/secrets", cfg.CreateSecretHandler(512))
+	// Website Handlers
+	siteHandler := http.StripPrefix("/v1", http.FileServer(http.Dir("./site/v1")))
+	mux.Handle("/v1/", siteHandler)
+
+	// Backend Handlers
+	mux.Handle("POST /api/secrets", cfg.CreateSecretHandler())
 	mux.Handle("GET /api/secrets/{id}/{keyText}", cfg.ReadSecretHandler())
 	mux.HandleFunc("GET /api/heartbeat", handlers.Heartbeat)
 	
