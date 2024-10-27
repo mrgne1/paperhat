@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"www.github.com/mrgne1/paperhat/encryption"
-	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -60,7 +59,7 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			ExpiresAt: time.Now().UTC().Add(30 * time.Second),
 		}
 
-		err = createSecret(c.secrets, secret)
+		err = c.createSecret(secret)
 		if err != nil {
 			log.Printf("CreateSecretHandler Error: %v\n", err)
 			secretHandlerError(w, "Error creating the secret in DB")
@@ -89,14 +88,14 @@ func (c *ApiConfig) ReadSecretHandler() http.Handler {
 			return
 		}
 
-		secret, err := readSecret(c.secrets, id)
+		secret, err := c.readSecret(id)
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
 			secretHandlerError(w, "Error Reading secret from DB")
 			return
 		}
 
-		err = deleteSecret(c.secrets, id)
+		err = c.deleteSecret(id)
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
 			secretHandlerError(w, "Error Reading secret from DB")
@@ -127,8 +126,8 @@ insert into secrets (id, value, created_at, expires_at)
 values (?,?,?,?);
 `
 
-func createSecret(db *sql.DB, secret Secret) error {
-	_, err := db.ExecContext(
+func (c *ApiConfig) createSecret(secret Secret) error {
+	_, err := c.secrets.ExecContext(
 		context.Background(),
 		createSecretSql,
 		secret.Id,
@@ -145,8 +144,8 @@ from secrets
 where secrets.id = ?;
 `
 
-func readSecret(db *sql.DB, id uuid.UUID) (Secret, error) {
-	row := db.QueryRowContext(
+func (c *ApiConfig) readSecret(id uuid.UUID) (Secret, error) {
+	row := c.secrets.QueryRowContext(
 		context.Background(),
 		readSecretSql,
 		id,
@@ -166,8 +165,8 @@ delete from secrets
 where id = ?;
 `
 
-func deleteSecret(db *sql.DB, id uuid.UUID) error {
-	_, err := db.ExecContext(
+func (c *ApiConfig) deleteSecret(id uuid.UUID) error {
+	_, err := c.secrets.ExecContext(
 		context.Background(),
 		deleteSecretSql,
 		id,

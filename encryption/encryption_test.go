@@ -32,7 +32,7 @@ func TestEncryptionThenDecryption(t *testing.T) {
 }
 
 func TestEncryptionSimulation(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 1000000; i++ {
 		value := RandomString()
 		val, key, err := Encrypt(value)
 
