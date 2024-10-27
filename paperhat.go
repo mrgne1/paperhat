@@ -13,15 +13,16 @@ func main() {
 	fmt.Println("Starting PaperHat Server")
 
 	port := "2060"
+	host := "localhost"
+	hostUrl := fmt.Sprintf("%v:%v", host, port)
 
 	mux := http.NewServeMux()
-
 	server := http.Server{
 		Handler: mux,
-		Addr: ":" + port,
+		Addr: hostUrl,
 	}
 
-	cfg, err := handlers.NewApiConfig()
+	cfg, err := handlers.NewApiConfig(hostUrl)
 	if err != nil {
 		log.Println(err)
 		return

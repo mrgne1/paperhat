@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -16,8 +17,9 @@ import (
 
 var ErrNoSecretFound error = errors.New("No secret found")
 
-type SecretSavedResponse struct {
-	Link string
+type CreateSecretResponse struct {
+	DirectLink   string `json:"directLink"`
+	HtmlPageLink string `json:"htmlPageLink"`
 }
 
 type Secret struct {
@@ -50,14 +52,20 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			return
 		}
 
-		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		resp := CreateSecretResponse {
+			DirectLink: fmt.Sprintf("%v/api/secrets/%v", c.hostUrl, secret.Id),
+			HtmlPageLink: fmt.Sprintf("%v/v1/secrets/%v", c.hostUrl, secret.Id),
+		}
+
+		respBody, _ := json.Marshal(resp)
+		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(200)
-		w.Write([]byte(fmt.Sprintf("%v", secret.Id)))
+		w.Write(respBody)
 	})
 }
 
 func (c *ApiConfig) ReadSecretHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r * http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id, err := uuid.Parse(r.PathValue("id"))
 		if err != nil {
 			log.Printf("ReadSecretHandler Error: %v\n", err)
@@ -154,8 +162,8 @@ func (cfg *ApiConfig) DeleteExpired() error {
 		time.Now().UTC(),
 	)
 
-	n, e:= result.RowsAffected()
-	if e!= nil {
+	n, e := result.RowsAffected()
+	if e != nil {
 		log.Printf("deleteExpiredRows Error: %v\n", e)
 	} else {
 		log.Printf("Deleted %v expired rows\n", n)
