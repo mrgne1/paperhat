@@ -14,10 +14,9 @@ var ErrOpeningSecretDB error = errors.New("Can't Open secrets database")
 type ApiConfig struct {
 	Version string
 	secrets *sql.DB
-	hostUrl string
 }
 
-func NewApiConfig(hostUrl string) (ApiConfig, error) {
+func NewApiConfig() (ApiConfig, error) {
 	secrets, err := getSecretDb()
 	if err != nil {
 		log.Println(err)
@@ -27,7 +26,6 @@ func NewApiConfig(hostUrl string) (ApiConfig, error) {
 	return ApiConfig{
 			Version: "1",
 			secrets: secrets,
-			hostUrl: hostUrl,
 		},
 		nil
 }
