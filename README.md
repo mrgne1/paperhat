@@ -1,17 +1,19 @@
 # Paperhat
-Simple way to share secrets with another person.
+Paperhat is an API, database and optional website for sharing secrets with others.
 
-User can create a secret.
-The secret is encrypted and stored in a database.
-User's are given an id for the secret and the key used to encrypt the secret.
-Since only the user has the encryption key, only the user can decrypt the secret.
-Secret can be recovered by passing the id and the key to the api.
+A person can send a secret value to Paperhat.
+Paperhat will encrypt that secret and store it in a database.
+Once the secret is stored succesfully Paperhat will return a link to recover the secret value.
 
-Once accessed, the secret will be deleted.
-Secrets will be deleted even if an error occurs and the secret is not returned.
-The secret will also be deleted if the secret expires.
+The link contains a unique id for the stored secret and the key used to encrypt the secret.
+Paperhat doesn't store the encryption key.
+This means that only a person with the correct link can recover a secret.
 
-It's possible to run Paperhat as a stand-alone application with API, database and website or as a backend only instance with only the API and database.
+Once recovered, the secret will be deleted from the database.
+The secret will be deleted even if an error occurs during recovery.
+
+Secrets are always created with a duration, the period of time for which the secret will available for recovery.
+If the secret is not recovered before that period of time has elapsed, the secret will be deleted.
 
 # Requirements
 Paperhat was developed with Golang 1.23.1 on Ubuntu
