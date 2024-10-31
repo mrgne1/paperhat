@@ -45,9 +45,9 @@
                     Create another secret
                 </button>
             `
-        var port = '';
-        if (window.location.port !== 443 && window.location.port !== 80) {
-            port = ':' + window.location.port; 
+        var port = window.location.port;
+        if (!!port && port != 443 && port != 80) {
+            port = ':' + port;
         }
         const link = `${window.location.hostname}${port}/v1/secrets/?id=${id}&key=${key}`;
         document.getElementById('link').value = link;
