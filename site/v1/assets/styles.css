@@ -1,0 +1,77 @@
+
+    html {
+        font-family:  "Courier New", "Lucida Console", monospace;
+    }
+
+    body {
+        background-color: gray;
+        margin: 0;
+    }
+
+    textarea {
+        font-family:  "Courier New", "Lucida Console", monospace;
+    }
+
+    button {
+        font-family:  "Courier New", "Lucida Console", monospace;
+    }
+
+    .logo::before {
+        content: 'Paper Hat';
+    }
+
+    .header {
+        background-color: lightgray;
+        width: calc(100vw - 10px);
+        padding: 0 0 10px 10px;
+        border-bottom: solid 3px rebeccapurple;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 1fr 10fr 1fr;
+    }
+
+    .card {
+        grid-column: 2 / span 1;
+        display: grid;
+        justify-items: center;
+        border: solid 1px gray;
+        border-radius: 7px;
+        background-color: white;
+        padding: 3rem;
+    }
+
+    .icon {
+        height: 0.875rem;
+    }
+
+    .icon.lower {
+        position: relative;
+        top: 2px;
+    }
+
+    .clickable {
+        cursor: pointer;
+    }
+
+    .icon.clickable {
+        height: calc(0.875rem - 2px);
+        border: solid 1px transparent;
+        border-radius: 2px;
+    }
+
+    .icon.clickable:hover {
+        border-color: gray;
+    }
+    
+    .form-textinput {
+        display: block;
+        width: 25vw;
+        height: 10rem;
+    }
+
+    .form-button {
+        width: 25vw;
+        margin: 2px 0;
+    }

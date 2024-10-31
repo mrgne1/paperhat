@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"www.github.com/mrgne1/paperhat/encryption"
@@ -18,8 +18,9 @@ import (
 var ErrNoSecretFound error = errors.New("No secret found")
 
 type CreateSecretResponse struct {
-	DirectLink   string `json:"directLink"`
-	HtmlPageLink string `json:"htmlPageLink"`
+	DirectLink string `json:"directLink"`
+	Id         string `json:"id"`
+	Key        string `json:"key"`
 }
 
 type Secret struct {
@@ -28,6 +29,9 @@ type Secret struct {
 	CreatedAt time.Time
 	ExpiresAt time.Time
 }
+
+var maxDuration int64 = 86400
+var minDuration int64 = 60
 
 func (c *ApiConfig) CreateSecretHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -52,11 +56,21 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			return
 		}
 
+		durationString := r.URL.Query().Get("duration")
+		duration, err := strconv.ParseInt(durationString, 0, 32)
+		if err != nil {
+			log.Printf("CreateSecretHandler Invalid Duration %v\n", durationString)
+			duration = minDuration
+		} else if duration <= minDuration || duration > maxDuration  {
+			log.Printf("CreateSecretHandler Duration out of bounds %v\n", duration)
+			duration = minDuration
+		}
+
 		secret := Secret{
 			Id:        id,
 			Value:     cipherText,
 			CreatedAt: time.Now().UTC(),
-			ExpiresAt: time.Now().UTC().Add(30 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(time.Duration(duration) * time.Second),
 		}
 
 		err = c.createSecret(secret)
@@ -66,9 +80,11 @@ func (c *ApiConfig) CreateSecretHandler() http.Handler {
 			return
 		}
 
+		log.Printf("New secret created! Expires at %v\n", secret.ExpiresAt)
+
 		resp := CreateSecretResponse{
-			DirectLink:   fmt.Sprintf("%v/api/secrets/%v/%v", c.hostUrl, secret.Id, keyText),
-			HtmlPageLink: fmt.Sprintf("%v/v1/secrets/%v/%v", c.hostUrl, secret.Id, keyText),
+			Id:         secret.Id.String(),
+			Key:        keyText,
 		}
 
 		respBody, _ := json.Marshal(resp)

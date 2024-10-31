@@ -1,9 +1,100 @@
 <html>
-    <head>
-        <title>Paper Hat</title>
-    </head>
+<link rel="stylesheet" href="/v1/assets/styles.css">
+<style>
+    .secret-link {
+        height: 3rem;
+    }
+    .duration-selector {
+        display: flex;
+        margin: 0.5rem;
+    }
+</style>
+<script src="/v1/assets/script.js"></script>
+<script>
+    function saveSecret() {
+        const secret = document.getElementById('secret').value;
+        const duration = document.querySelector('input[name="duration"]:checked').value;
+        fetch(`/api/secrets?duration=${duration}`, {
+            method: 'POST',
+            body: secret,
+            headers: { 'Content-Type': 'plain/text; charset=utf-8;', },
+        }).then(
+            (resp) => resp.json()
+        ).then(
+            (body) => displayResults(secret, body.id, body.key)
+        );
+    }
 
-    <body>
-        <h1>Paper Hat Works !!!</h1>
-    </body>
+    function displayResults(secret, id, key) {
+        const content = document.getElementById('content')
+            .innerHTML = ` 
+                <label for="link">Secret Link
+                    <img class="icon clickable"
+                        src="/v1/assets/icons/copy.svg"
+                        onclick="copyLink()"
+                    ></img>
+                </label>
+                <textarea class="secret-link form-textinput" disabled id="link"></textarea>
+
+                <label for="secret">Secret</label>
+                <textarea disabled class="form-textinput" id="secret"></textarea>
+                <button class="form-button clickable" onclick="resetPage()">
+                    <img class="icon lower"
+                        src="/v1/assets/icons/plus-square.svg"
+                    ></img>
+                    Create another secret
+                </button>
+            `
+        var port = '';
+        if (window.location.port !== 443 && window.location.port !== 80) {
+            port = ':' + window.location.port; 
+        }
+        const link = `${window.location.hostname}${port}/v1/secrets/?id=${id}&key=${key}`;
+        document.getElementById('link').value = link;
+        document.getElementById('secret').value = secret;
+    }
+
+    function copyLink() {
+        const link = document.getElementById('link').value;
+        navigator.clipboard.writeText(link);
+    }
+</script>
+<head>
+    <title>Paper Hat</title>
+</head>
+
+<body>
+    <h1 class="header">
+        <span class="logo clickable" onclick="resetPage()"></span>
+    </h1>
+    <div class="layout">
+        <div class="card">
+            <div id="content" class="content">
+                <label for="secret">Secret</label>
+                <textarea required autofocus
+                    class="form-textinput"
+                    id="secret"
+                    type="text"
+                    placeholder="Enter Secret Here"
+                ></textarea>
+
+                <div class="duration-selector">
+                    <span style="flex-grow: 1"></span>
+                    <input type="radio" id="hour" name="duration"i value=3600 checked>
+                    <label for="hour">Hour</label>
+                    <span style="flex-grow: 2"></span>
+                    <input type="radio" id="day" name="duration"i value=86400>
+                    <label for="day">Day</label>
+                    <span style="flex-grow: 2"></span>
+                    <input type="radio" id="week" name="duration"i value=604800>
+                    <label for="week">Week</label>
+                    <span style="flex-grow: 1"></span>
+                </div>
+                <button class="form-button clickable" onclick="saveSecret()">
+                    Save Secret
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
