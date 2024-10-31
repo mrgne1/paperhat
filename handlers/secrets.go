@@ -18,7 +18,6 @@ import (
 var ErrNoSecretFound error = errors.New("No secret found")
 
 type CreateSecretResponse struct {
-	DirectLink string `json:"directLink"`
 	Id         string `json:"id"`
 	Key        string `json:"key"`
 }
