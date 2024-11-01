@@ -36,10 +36,10 @@ API heartbeat example: `localhost:2060/api/heartbeat`
 Paperhat uses a `.env` file for configurations.
 Example Configuration:
 ```
-# Port for the Website and the API
+# Port for the Website and the API. Defaults to 2060
 PORT=2060
 
-# Operation mode (standalone or api)
+# Operation mode (standalone or api) Defaults to standalone
 # api will deploy on the api and database for saving secrets
 #   it is intended to work with a custom website
 # stand alone will deploy both the api and a website for creating secrets 
