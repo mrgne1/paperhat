@@ -28,13 +28,23 @@ func main() {
 		mode = "standalone"
 	}
 
+	sitePath := os.Getenv("SITEPATH")
+	if sitePath == "" {
+		sitePath = "./site/v1"
+	}
+
+	dbPath := os.Getenv("DBPATH")
+	if dbPath == "" {
+		dbPath = "./secrets.db"
+	}
+
 	mux := http.NewServeMux()
 	server := http.Server{
 		Handler: mux,
 		Addr: ":" + port,
 	}
 
-	cfg, err := handlers.NewApiConfig()
+	cfg, err := handlers.NewApiConfig(dbPath)
 	if err != nil {
 		log.Println(err)
 		return

@@ -44,6 +44,14 @@ PORT=2060
 #   it is intended to work with a custom website
 # stand alone will deploy both the api and a website for creating secrets 
 MODE=standalone
+
+# Website path
+# Path to the website files. Defaults to ./site/v1 if not provided
+# SITEPATH=./site/v1
+
+# Database path
+# Path to the Sqlite3 database file. Defaults to ./secrets.db
+# DBPATH=./secrets.db
 ```
 
 # API

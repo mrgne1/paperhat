@@ -16,8 +16,8 @@ type ApiConfig struct {
 	secrets *sql.DB
 }
 
-func NewApiConfig() (ApiConfig, error) {
-	secrets, err := getSecretDb()
+func NewApiConfig(dbPath string) (ApiConfig, error) {
+	secrets, err := getSecretDb(dbPath)
 	if err != nil {
 		log.Println(err)
 		return ApiConfig{}, ErrOpeningSecretDB
@@ -30,8 +30,8 @@ func NewApiConfig() (ApiConfig, error) {
 		nil
 }
 
-func getSecretDb() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./secrets.db")
+func getSecretDb(dbPath string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return &sql.DB{}, err
 	}
