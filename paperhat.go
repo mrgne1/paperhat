@@ -54,8 +54,11 @@ func main() {
 
 	// Website Handlers
 	if mode == "standalone" {
-		siteHandler := http.StripPrefix("/v1", http.FileServer(http.Dir("./site/v1")))
+
+		fmt.Printf("Serving website from %v\n", sitePath)
+		siteHandler := http.StripPrefix("/v1", http.FileServer(http.Dir(sitePath)))
 		mux.Handle("/v1/", siteHandler)
+		mux.Handle("/", http.RedirectHandler("/v1", http.StatusMovedPermanently))
 	}
 
 	// Backend Handlers
