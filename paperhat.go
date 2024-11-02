@@ -1,7 +1,9 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -12,11 +14,13 @@ import (
 	"www.github.com/mrgne1/paperhat/handlers"
 )
 
+//go:embed site/v1/*
+var site embed.FS
+
 func main() {
 	fmt.Println("Starting PaperHat Server")
 
 	godotenv.Load()
-
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -26,11 +30,6 @@ func main() {
 	mode := strings.ToLower(os.Getenv("MODE"))
 	if mode == "" {
 		mode = "standalone"
-	}
-
-	sitePath := os.Getenv("SITEPATH")
-	if sitePath == "" {
-		sitePath = "./site/v1"
 	}
 
 	dbPath := os.Getenv("DBPATH")
@@ -54,11 +53,15 @@ func main() {
 
 	// Website Handlers
 	if mode == "standalone" {
-
-		fmt.Printf("Serving website from %v\n", sitePath)
-		siteHandler := http.StripPrefix("/v1", http.FileServer(http.Dir(sitePath)))
-		mux.Handle("/v1/", siteHandler)
-		mux.Handle("/", http.RedirectHandler("/v1", http.StatusMovedPermanently))
+		fSys, err := fs.Sub(site, "site/v1")
+		if err != nil {
+			log.Printf("Error hosting Website: %v\n", err)
+		} else {
+			log.Println("Hosting Paperhat website")
+			siteHandler := http.StripPrefix("/v1", http.FileServer(http.FS(fSys)))
+			mux.Handle("/v1/", siteHandler)
+			mux.Handle("/", http.RedirectHandler("/v1", http.StatusMovedPermanently))
+		}
 	}
 
 	// Backend Handlers
