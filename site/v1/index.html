@@ -2,7 +2,8 @@
 <link rel="stylesheet" href="/v1/assets/styles.css">
 <style>
     .secret-link {
-        height: 3rem;
+        height: 4rem;
+        font-size: 20px;
     }
     .duration-selector {
         display: flex;
@@ -59,11 +60,6 @@
         document.getElementById('link').value = link;
         document.getElementById('secret').value = secret;
         document.getElementById('copyLinkButton').focus();
-    }
-
-    function copyElementValue(id) {
-        const link = document.getElementById(id).value;
-        navigator.clipboard.writeText(link);
     }
 
     function submitOnCtrlEnter(event) {
