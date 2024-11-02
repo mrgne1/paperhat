@@ -28,17 +28,23 @@
     function displayResults(secret, id, key) {
         const content = document.getElementById('content')
             .innerHTML = ` 
-                <label for="link">Secret Link
-                    <img class="icon clickable"
-                        src="/v1/assets/icons/copy.svg"
-                        onclick="copyLink()"
-                    ></img>
+                <label for="link">
+                     Secret Link
+                    <button 
+                        id="copyLinkButton"
+                        onclick="copyElementValue('link')"
+                        class="clickable focusable"
+                    >
+                        <img class="icon"
+                            src="/v1/assets/icons/copy.svg"
+                        ></img>
+                    </button>
                 </label>
                 <textarea class="secret-link form-textinput" disabled id="link"></textarea>
 
                 <label for="secret">Secret</label>
-                <textarea disabled class="form-textinput" id="secret"></textarea>
-                <button class="form-button clickable" onclick="resetPage()">
+                <textarea disabled class="form-textinput focusable" id="secret"></textarea>
+                <button class="form-button clickable focusable" onclick="resetPage()">
                     <img class="icon lower"
                         src="/v1/assets/icons/plus-square.svg"
                     ></img>
@@ -52,11 +58,18 @@
         const link = `${window.location.hostname}${port}/v1/secrets/?id=${id}&key=${key}`;
         document.getElementById('link').value = link;
         document.getElementById('secret').value = secret;
+        document.getElementById('copyLinkButton').focus();
     }
 
-    function copyLink() {
-        const link = document.getElementById('link').value;
+    function copyElementValue(id) {
+        const link = document.getElementById(id).value;
         navigator.clipboard.writeText(link);
+    }
+
+    function submitOnCtrlEnter(event) {
+        if (event.key === 'Enter' && (event.ctrlKey || event.shiftKey)) {
+            saveSecret();
+        }
     }
 </script>
 <head>
@@ -72,7 +85,8 @@
             <div id="content" class="content">
                 <label for="secret">Secret</label>
                 <textarea required autofocus
-                    class="form-textinput"
+                    onkeydown="submitOnCtrlEnter(event)"
+                    class="form-textinput focusable"
                     id="secret"
                     type="text"
                     placeholder="Enter Secret Here"
@@ -80,17 +94,23 @@
 
                 <div class="duration-selector">
                     <span style="flex-grow: 1"></span>
-                    <input type="radio" id="hour" name="duration"i value=3600 checked>
-                    <label for="hour">Hour</label>
+                    <label for="hour">
+                        <input type="radio" id="hour" name="duration"i value=3600 checked>
+                        Hour
+                    </label>
                     <span style="flex-grow: 2"></span>
-                    <input type="radio" id="day" name="duration"i value=86400>
-                    <label for="day">Day</label>
+                    <label for="day">
+                        <input type="radio" id="day" name="duration"i value=86400>
+                        Day
+                    </label>
                     <span style="flex-grow: 2"></span>
-                    <input type="radio" id="week" name="duration"i value=604800>
-                    <label for="week">Week</label>
+                    <label for="week">
+                        <input type="radio" id="week" name="duration"i value=604800>
+                        Week
+                    </label>
                     <span style="flex-grow: 1"></span>
                 </div>
-                <button class="form-button clickable" onclick="saveSecret()">
+                <button class="form-button clickable focusable" onclick="saveSecret()">
                     Save Secret
                 </button>
             </div>
