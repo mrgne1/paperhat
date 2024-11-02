@@ -1,18 +1,11 @@
-    html {
+    html, textarea, button {
         font-family:  "Courier New", "Lucida Console", monospace;
+        font-size: 30px;
     }
 
     body {
         background-color: gray;
         margin: 0;
-    }
-
-    textarea {
-        font-family:  "Courier New", "Lucida Console", monospace;
-    }
-
-    button {
-        font-family:  "Courier New", "Lucida Console", monospace;
     }
 
     .logo::before {
@@ -21,7 +14,7 @@
 
     .header {
         background-color: lightgray;
-        width: 100vw;
+        width: calc(100vw - 10px);
         padding: 0 0 10px 10px;
         border-bottom: solid 3px rebeccapurple;
     }
@@ -33,16 +26,22 @@
     .layout {
         display: grid;
         grid-template-columns: 1fr 10fr 1fr;
+        justify-items: center;
     }
 
     .card {
-        grid-column: 2 / span 1;
         display: grid;
-        justify-items: center;
+        grid-template-columns: 1fr minmax(500px, 5fr) 1fr;
+        grid-column: 2 / span 1;
         border: solid 1px rebeccapurple;
         border-radius: 7px;
         background-color: white;
-        padding: 3rem;
+        padding: 1rem;
+        max-width: 1000px;
+    }
+
+    .content {
+        grid-column: 2;
     }
 
     .icon {
@@ -70,11 +69,11 @@
 
     .form-textinput {
         display: block;
-        width: 25vw;
-        height: 10rem;
+        width: 100%;
+        height: max(10rem, calc(60vh - 80px));
     }
 
     .form-button {
-        width: 25vw;
+        width: 100%;
         margin: 2px 0;
     }
