@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -31,7 +32,14 @@ func NewApiConfig(dbPath string) (ApiConfig, error) {
 }
 
 func getSecretDb(dbPath string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", dbPath)
+	var dbType string
+	if strings.HasPrefix(dbPath, "libsql://") {
+		dbType = "libsql"
+	} else {
+		dbType = "sqlite"
+	}
+
+	db, err := sql.Open(dbType, dbPath)
 	if err != nil {
 		return &sql.DB{}, err
 	}
